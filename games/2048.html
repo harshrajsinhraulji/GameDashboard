@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>2048</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .game { width:340px; margin:20px auto; background:#bbada0; padding:10px; border-radius:6px; }
+  .row{ display:flex; }
+  .tile{ width:70px; height:70px; margin:8px; background:#ccc; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:20px; border-radius:3px; }
+  .controls{ text-align:center; margin-top:12px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header><a href="../dashboard.php">&larr; Dashboard</a></header>
+  <h1>2048</h1>
+  <div id="score">Score: 0</div>
+  <div class="game" id="board"></div>
+  <div class="controls">
+    <button id="new">New Game</button>
+  </div>
+</div>
+<script src="../js/common.js"></script>
+<script>
+/*
+ Minimal 2048 implementation (4x4). When game over, sends highest tile as score.
+ This is not production-quality but works for assignment use.
+*/
+const boardEl = document.getElementById('board');
+const scoreEl = document.getElementById('score');
+const size = 4;
+let grid, score;
+
+function createGrid(){
+  grid = Array.from({length:size}, ()=>Array(size).fill(0));
+  score = 0;
+  addRandom(); addRandom();
+  render();
+}
+
+function addRandom(){
+  const empties = [];
+  for (let r=0;r<size;r++) for (let c=0;c<size;c++) if (grid[r][c]===0) empties.push([r,c]);
+  if (!empties.length) return;
+  const [r,c] = empties[Math.floor(Math.random()*empties.length)];
+  grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+}
+
+function render(){
+  boardEl.innerHTML='';
+  for (let r=0;r<size;r++){
+    const row = document.createElement('div'); row.className='row';
+    for (let c=0;c<size;c++){
+      const t = document.createElement('div'); t.className='tile';
+      t.textContent = grid[r][c]===0 ? '' : grid[r][c];
+      row.appendChild(t);
+    }
+    boardEl.appendChild(row);
+  }
+  scoreEl.textContent = 'Score: ' + score;
+}
+
+function transpose(a){ return a[0].map((_,i)=>a.map(row=>row[i])); }
+function reverseRows(a){ return a.map(row=>row.slice().reverse()); }
+
+function slideLeft(row){
+  const arr = row.filter(x=>x);
+  for (let i=0;i<arr.length-1;i++){
+    if (arr[i]===arr[i+1]){ arr[i]*=2; score+=arr[i]; arr.splice(i+1,1); }
+  }
+  while(arr.length < size) arr.push(0);
+  return arr;
+}
+
+function moveLeft(){
+  let changed=false;
+  for (let r=0;r<size;r++){
+    const newRow = slideLeft(grid[r]);
+    if (newRow.join(',') !== grid[r].join(',')) changed=true;
+    grid[r] = newRow;
+  }
+  return changed;
+}
+function moveRight(){ grid = reverseRows(grid); const changed = moveLeft(); grid = reverseRows(grid); return changed; }
+function moveUp(){ grid = transpose(grid); const changed = moveLeft(); grid = transpose(grid); return changed; }
+function moveDown(){ grid = transpose(grid); grid = reverseRows(grid); const changed = moveLeft(); grid = reverseRows(grid); grid = transpose(grid); return changed; }
+
+function isGameOver(){
+  for (let r=0;r<size;r++) for (let c=0;c<size;c++) if (grid[r][c]===0) return false;
+  // check possible merges
+  for (let r=0;r<size;r++) for (let c=0;c<size-1;c++) if (grid[r][c]===grid[r][c+1]) return false;
+  for (let c=0;c<size;c++) for (let r=0;r<size-1;r++) if (grid[r][c]===grid[r+1][c]) return false;
+  return true;
+}
+
+document.addEventListener('keydown', (e)=>{
+  let moved=false;
+  if (e.key === 'ArrowLeft') moved = moveLeft();
+  else if (e.key === 'ArrowRight') moved = moveRight();
+  else if (e.key === 'ArrowUp') moved = moveUp();
+  else if (e.key === 'ArrowDown') moved = moveDown();
+  if (moved){
+    addRandom(); render();
+    if (isGameOver()){
+      setTimeout(()=> {
+        const best = grid.flat().reduce((a,b)=>Math.max(a,b),0);
+        alert('Game Over. Highest tile: ' + best);
+        saveScore('2048', best);
+      }, 100);
+    }
+  }
+});
+
+document.getElementById('new').onclick = createGrid;
+createGrid();
+</script>
+</body>
+</html>
