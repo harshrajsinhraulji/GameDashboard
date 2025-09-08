@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TicTacToe</title>
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  .board{ width:300px; margin:30px auto; display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .cell{ width:100px; height:100px; background:#fff; display:flex; align-items:center; justify-content:center; font-size:42px; cursor:pointer; }
+  .info{ text-align:center; }
+  .btn{ display:inline-block; padding:8px 12px; margin-top:10px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header><a href="../dashboard.php">&larr; Dashboard</a></header>
+  <h1>TicTacToe</h1>
+  <div class="info">
+    <span id="status">Your turn (X)</span><br>
+    <button id="reset" class="btn">Reset</button>
+  </div>
+  <div class="board" id="board">
+    <div class="cell" data-i="0"></div>
+    <div class="cell" data-i="1"></div>
+    <div class="cell" data-i="2"></div>
+    <div class="cell" data-i="3"></div>
+    <div class="cell" data-i="4"></div>
+    <div class="cell" data-i="5"></div>
+    <div class="cell" data-i="6"></div>
+    <div class="cell" data-i="7"></div>
+    <div class="cell" data-i="8"></div>
+  </div>
+</div>
+<script src="../js/common.js"></script>
+<script>
+/* Simple 2-player (human vs human) TicTacToe. Score: winner=1, draw=0 */
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const resetBtn = document.getElementById('reset');
+let cells, state, turn, running;
+
+function init(){
+  cells = Array.from(document.querySelectorAll('.cell'));
+  state = Array(9).fill('');
+  turn = 'X';
+  running = true;
+  cells.forEach(c => { c.textContent=''; c.classList.remove('win'); c.onclick = onClick; });
+  statusEl.textContent = `Turn: ${turn}`;
+}
+function onClick(e){
+  const idx = Number(e.currentTarget.dataset.i);
+  if (!running || state[idx]) return;
+  state[idx]=turn;
+  e.currentTarget.textContent = turn;
+  const winner = checkWinner();
+  if (winner) {
+    running=false;
+    statusEl.textContent = winner === 'draw' ? 'Draw!' : `${winner} wins!`;
+    if (winner !== 'draw') {
+      // score 1 for winner
+      saveScore('TicTacToe', 1);
+    } else {
+      saveScore('TicTacToe', 0);
+    }
+  } else {
+    turn = turn === 'X' ? 'O' : 'X';
+    statusEl.textContent = `Turn: ${turn}`;
+  }
+}
+function checkWinner(){
+  const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for (let w of wins){
+    const [a,b,c] = w;
+    if (state[a] && state[a] === state[b] && state[b] === state[c]) {
+      // highlight
+      document.querySelectorAll('.cell')[a].classList.add('win');
+      document.querySelectorAll('.cell')[b].classList.add('win');
+      document.querySelectorAll('.cell')[c].classList.add('win');
+      return state[a];
+    }
+  }
+  if (state.every(Boolean)) return 'draw';
+  return null;
+}
+resetBtn.onclick = init;
+init();
+</script>
+</body>
+</html>
