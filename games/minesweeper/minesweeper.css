@@ -1,0 +1,49 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #c0c0c0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.header { margin-bottom: 20px; font-size: 1.2em; }
+#restart-btn { margin-left: 20px; padding: 5px 10px; }
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(10, 30px);
+    grid-template-rows: repeat(10, 30px);
+    border: 3px solid #808080;
+    background-color: #bdbdbd;
+}
+.tile {
+    width: 30px;
+    height: 30px;
+    background-color: #c0c0c0;
+    border: 2px outset #fff;
+    border-top-color: #fff;
+    border-left-color: #fff;
+    border-bottom-color: #7b7b7b;
+    border-right-color: #7b7b7b;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+.tile.revealed {
+    border: 1px solid #7b7b7b;
+    background-color: #bdbdbd;
+}
+.tile.flagged::before { content: '🚩'; }
+.tile.mine::before { content: '💣'; }
+/* Number Colors */
+[data-mines="1"] { color: #0000ff; }
+[data-mines="2"] { color: #008000; }
+[data-mines="3"] { color: #ff0000; }
+[data-mines="4"] { color: #000080; }
+[data-mines="5"] { color: #800000; }
+[data-mines="6"] { color: #008080; }

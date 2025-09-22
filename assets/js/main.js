@@ -86,10 +86,15 @@ window.addEventListener('click', (event) => {
 });
 
 // THIS IS THE CORRECTED FUNCTION
+// In assets/js/main.js
+
 function launchGame(gameFolder, gameName) {
     modalTitle.textContent = gameName;
-    // The path is now relative, without a leading slash.
     modalBody.innerHTML = `<iframe src="games/${gameFolder}/index.html"></iframe>`;
+    
+    // Add this line to automatically focus the game
+    modalBody.querySelector('iframe').onload = function() { this.contentWindow.focus(); };
+
     openModal();
 }
 

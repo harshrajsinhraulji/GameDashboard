@@ -1,0 +1,61 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #faf8ef;
+    color: #776e65;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+.container { text-align: center; }
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 400px;
+    margin-bottom: 20px;
+}
+h1 { font-size: 4em; }
+.score-container {
+    background-color: #bbada0;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.5em;
+    color: white;
+}
+#game-board {
+    width: 400px;
+    height: 400px;
+    background-color: #bbada0;
+    border-radius: 6px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    gap: 10px;
+    padding: 10px;
+    position: relative;
+}
+.tile {
+    width: 87.5px;
+    height: 87.5px;
+    border-radius: 3px;
+    background-color: #ccc0b3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    font-weight: bold;
+}
+/* Tile Colors */
+[data-value="2"] { background-color: #eee4da; color: #776e65; }
+[data-value="4"] { background-color: #ede0c8; color: #776e65; }
+[data-value="8"] { background-color: #f2b179; color: #f9f6f2; }
+[data-value="16"] { background-color: #f59563; color: #f9f6f2; }
+[data-value="32"] { background-color: #f67c5f; color: #f9f6f2; }
+[data-value="64"] { background-color: #f65e3b; color: #f9f6f2; }
+[data-value="128"] { background-color: #edcf72; color: #f9f6f2; }
+[data-value="256"] { background-color: #edcc61; color: #f9f6f2; }
+[data-value="512"] { background-color: #edc850; color: #f9f6f2; }
+[data-value="1024"] { background-color: #edc53f; color: #f9f6f2; }
+[data-value="2048"] { background-color: #edc22e; color: #f9f6f2; }

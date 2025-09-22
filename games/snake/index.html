@@ -10,10 +10,17 @@
     <div class="game-container">
         <div class="score-display">Score: <span id="score">0</span></div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div id="gameOverScreen" class="hidden">
+        
+        <div id="gameOverScreen" class="overlay hidden">
             <h2>Game Over</h2>
             <p>Final Score: <span id="finalScore">0</span></p>
             <button id="restartButton">Play Again</button>
+        </div>
+
+        <div id="startScreen" class="overlay">
+            <h2>Snake</h2>
+            <p>Use arrow keys to move the snake and eat the food.</p>
+            <button id="startButton">Start Game</button>
         </div>
     </div>
     <script src="snake.js"></script>
