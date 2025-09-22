@@ -1,6 +1,19 @@
 // File: assets/js/main.js
 // Description: Main script for handling UI, authentication, modals, and game events.
+// Add this at the top of assets/js/main.js
 
+/**
+ * Plays a sound effect.
+ * @param {string} soundName - The name of the sound file (e.g., 'score.mp3').
+ */
+function playSound(soundName) {
+    try {
+        const audio = new Audio(`../assets/sounds/${soundName}`);
+        audio.play();
+    } catch (e) {
+        console.warn("Could not play sound", e);
+    }
+}
 // --- State & Configuration ---
 const games = [
     { name: "Snake", folder: "snake", desc: "A modern take on the classic arcade game." },
@@ -98,23 +111,36 @@ function launchGame(gameFolder, gameName) {
     openModal();
 }
 
+// In assets/js/main.js
+
 async function showLeaderboard(gameName) {
     modalTitle.textContent = `${gameName} - Top 10 Leaderboard`;
     modalBody.innerHTML = '<p>Loading...</p>';
     openModal();
+
     try {
-        const data = await getLeaderboard(gameName);
-        if (data.success) {
-            if (data.leaderboard.length > 0) {
+        // The API now returns the data and a 'unit' (like 'ms')
+        const { success, leaderboard, unit, message } = await getLeaderboard(gameName);
+        if (success) {
+            if (leaderboard.length > 0) {
                 let tableHTML = '<table><thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Date</th></tr></thead><tbody>';
-                data.leaderboard.forEach((entry, index) => {
-                    tableHTML += `<tr><td>${index + 1}</td><td>${entry.username}</td><td>${entry.score}</td><td>${new Date(entry.played_at).toLocaleDateString()}</td></tr>`;
+                leaderboard.forEach((entry, index) => {
+                    tableHTML += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${entry.username}</td>
+                            <td>${entry.score}${unit}</td>
+                            <td>${new Date(entry.played_at).toLocaleDateString()}</td>
+                        </tr>
+                    `;
                 });
                 tableHTML += '</tbody></table>';
                 modalBody.innerHTML = tableHTML;
             } else {
                 modalBody.innerHTML = '<p>No scores recorded for this game yet. Be the first!</p>';
             }
+        } else {
+            modalBody.innerHTML = `<p>Error: ${message}</p>`;
         }
     } catch (error) {
         modalBody.innerHTML = `<p>Could not fetch leaderboard. Please try again later.</p>`;
@@ -166,9 +192,12 @@ async function handleLogout() {
 }
 
 // --- Page-specific Initializers ---
+// In assets/js/main.js
+
 function initDashboard() {
     const gameGrid = document.getElementById('game-grid');
     if (!gameGrid) return;
+    
     gameGrid.innerHTML = games.map(game => `
         <div class="game-card">
             <div class="game-card-image">${game.name}</div>
@@ -176,18 +205,16 @@ function initDashboard() {
                 <h3>${game.name}</h3>
                 <p>${game.desc}</p>
                 <div class="game-card-actions">
-                    <button class="btn btn-primary play-btn" data-folder="${game.folder}" data-name="${game.name}">Play</button>
+                    <a href="games/${game.folder}/index.html" target="_blank" class="btn btn-primary">Play</a>
                     <button class="btn btn-secondary leaderboard-btn" data-name="${game.name}">Leaderboard</button>
                 </div>
             </div>
         </div>
     `).join('');
     
+    // The event listener no longer needs to handle "play" clicks
     gameGrid.addEventListener('click', (event) => {
         const target = event.target;
-        if (target.classList.contains('play-btn')) {
-            launchGame(target.dataset.folder, target.dataset.name);
-        }
         if (target.classList.contains('leaderboard-btn')) {
             showLeaderboard(target.dataset.name);
         }
