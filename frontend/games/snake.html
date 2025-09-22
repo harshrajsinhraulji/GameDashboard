@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake</title>
+  <style>
+    body { background:#1e1e2f; display:flex; justify-content:center; align-items:center; height:100vh; }
+    canvas { background:#000; border:2px solid #3b82f6; }
+    #score { position:absolute; top:20px; left:20px; color:#fff; font-family:Arial,sans-serif; font-size:20px; }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const box = 20;
+    let snake = [{x: 9 * box, y: 10 * box}];
+    let direction = "RIGHT";
+    let food = {
+      x: Math.floor(Math.random()*19)*box,
+      y: Math.floor(Math.random()*19)*box
+    };
+    let score = 0;
+    let game;
+
+    document.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+      else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    });
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = (i === 0) ? "#3b82f6" : "#fff";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let headX = snake[0].x;
+      let headY = snake[0].y;
+
+      if (direction === "LEFT") headX -= box;
+      if (direction === "UP") headY -= box;
+      if (direction === "RIGHT") headX += box;
+      if (direction === "DOWN") headY += box;
+
+      if (headX === food.x && headY === food.y) {
+        score++;
+        document.getElementById("score").innerText = "Score: " + score;
+        food = {
+          x: Math.floor(Math.random()*19)*box,
+          y: Math.floor(Math.random()*19)*box
+        };
+      } else {
+        snake.pop();
+      }
+
+      let newHead = {x: headX, y: headY};
+
+      if (
+        headX < 0 || headY < 0 ||
+        headX >= canvas.width || headY >= canvas.height ||
+        snake.some(part => part.x === newHead.x && part.y === newHead.y)
+      ) {
+        clearInterval(game);
+        sendScore(score, 1); // Game ID = 1 for Snake
+        alert("Game Over! Score: " + score);
+        return;
+      }
+
+      snake.unshift(newHead);
+    }
+
+    function sendScore(score, gameId) {
+      fetch("../save_score.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({score: score, game_id: gameId})
+      });
+    }
+
+    game = setInterval(draw, 100);
+  </script>
+</body>
+</html>
