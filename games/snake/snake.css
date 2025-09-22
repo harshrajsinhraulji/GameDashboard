@@ -1,0 +1,55 @@
+body {
+    background-color: #333;
+    color: white;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    text-align: center;
+    position: relative;
+}
+
+canvas {
+    background-color: #000;
+    border: 2px solid #555;
+}
+
+.score-display {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+#gameOverScreen {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+#gameOverScreen h2 {
+    margin-top: 0;
+}
+
+#restartButton {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    background-color: #2575fc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+.hidden {
+    display: none;
+}
