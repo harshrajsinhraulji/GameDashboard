@@ -1,9 +1,14 @@
+// games/memory/memory.js
 document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const movesDisplay = document.getElementById('moves');
+    const finalMovesDisplay = document.getElementById('final-moves');
+    const winOverlay = document.getElementById('win-overlay');
+    const restartBtn = document.getElementById('restart-btn');
+    const backBtn = document.getElementById('back-btn');
 
     const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
-    let cards = [...emojis, ...emojis];
+    let cards = [];
     let flippedCards = [];
     let matchedPairs = 0;
     let moves = 0;
@@ -13,11 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
         array.sort(() => Math.random() - 0.5);
     }
 
-    function createBoard() {
+    function initGame() {
+        cards = [...emojis, ...emojis];
         shuffle(cards);
         gameBoard.innerHTML = '';
+        winOverlay.classList.add('hidden');
         matchedPairs = 0;
         moves = 0;
+        canFlip = true;
         movesDisplay.textContent = moves;
 
         for (let i = 0; i < cards.length; i++) {
@@ -25,15 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.classList.add('card');
             card.dataset.emoji = cards[i];
             
-            const cardFront = document.createElement('div');
-            cardFront.classList.add('card-face', 'card-front');
-
-            const cardBack = document.createElement('div');
-            cardBack.classList.add('card-face', 'card-back');
-            cardBack.textContent = cards[i];
-
-            card.appendChild(cardFront);
-            card.appendChild(cardBack);
+            card.innerHTML = `
+                <div class="card-face card-front"></div>
+                <div class="card-face card-back">${cards[i]}</div>
+            `;
             card.addEventListener('click', handleCardClick);
             gameBoard.appendChild(card);
         }
@@ -42,15 +45,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCardClick(e) {
         if (!canFlip) return;
         const clickedCard = e.currentTarget;
-        if (clickedCard.classList.contains('flipped') || flippedCards.includes(clickedCard)) return;
+        // Ignore clicks on already flipped or matched cards
+        if (clickedCard.classList.contains('flipped')) return;
 
         clickedCard.classList.add('flipped');
         flippedCards.push(clickedCard);
 
         if (flippedCards.length === 2) {
-            moves++;
-            movesDisplay.textContent = moves;
-            canFlip = false;
+            canFlip = false; // Prevent more flips while checking
+            incrementMoves();
             checkForMatch();
         }
     }
@@ -58,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkForMatch() {
         const [card1, card2] = flippedCards;
         if (card1.dataset.emoji === card2.dataset.emoji) {
+            // It's a match!
             matchedPairs++;
             flippedCards = [];
             canFlip = true;
@@ -65,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 endGame();
             }
         } else {
+            // Not a match, flip back after a delay
             setTimeout(() => {
                 card1.classList.remove('flipped');
                 card2.classList.remove('flipped');
@@ -73,17 +78,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1000);
         }
     }
-
-    function endGame() {
-        setTimeout(() => {
-            alert(`You won in ${moves} moves!`);
-            // Score can be inverse of moves
-            const score = 1000 - (moves * 10);
-            if (window.parent && typeof window.parent.handleGameOver === 'function') {
-                window.parent.handleGameOver('Memory', score > 0 ? score : 0);
-            }
-        }, 500);
+    
+    function incrementMoves() {
+        moves++;
+        movesDisplay.textContent = moves;
     }
 
-    createBoard();
+    function endGame() {
+        finalMovesDisplay.textContent = moves;
+        winOverlay.classList.remove('hidden');
+
+        // Score is higher for fewer moves.
+        const score = Math.max(1000 - (moves * 10), 0); // Ensure score is not negative
+        if (window.parent && typeof window.parent.handleGameOver === 'function') {
+            window.parent.handleGameOver('Memory', score);
+        }
+    }
+
+    restartBtn.addEventListener('click', initGame);
+    backBtn.addEventListener('click', () => {
+        if (window.parent && typeof window.parent.closeGameModal === 'function') {
+            window.parent.closeGameModal();
+        }
+    });
+
+    initGame();
 });
