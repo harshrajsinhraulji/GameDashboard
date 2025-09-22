@@ -23,17 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function draw() {
-        // Clear canvas
         ctx.fillStyle = 'black';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw snake
         ctx.fillStyle = 'lime';
         snake.forEach(segment => {
             ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize - 1, gridSize - 1);
         });
 
-        // Draw food
         ctx.fillStyle = 'red';
         ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
     }
@@ -49,13 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'right': head.x++; break;
         }
 
-        // Check for collision with walls
         if (head.x < 0 || head.x * gridSize >= canvas.width || head.y < 0 || head.y * gridSize >= canvas.height) {
             gameOver();
             return;
         }
 
-        // Check for collision with self
         for (let i = 1; i < snake.length; i++) {
             if (head.x === snake[i].x && head.y === snake[i].y) {
                 gameOver();
@@ -65,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         snake.unshift(head);
 
-        // Check for food collision
         if (head.x === food.x && head.y === food.y) {
             score++;
             scoreEl.textContent = score;
@@ -84,11 +78,9 @@ document.addEventListener('DOMContentLoaded', () => {
         finalScoreEl.textContent = score;
         gameOverScreen.classList.remove('hidden');
 
-        // IMPORTANT: Communicate score back to the parent window (dashboard)
         if (window.parent && typeof window.parent.handleGameOver === 'function') {
             window.parent.handleGameOver('Snake', score);
         } else {
-            // Fallback for standalone play
             console.log('Game Over. Final Score:', score);
         }
     }
@@ -113,10 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // The restart button inside the game only restarts the game, it doesn't close the modal.
-    // The main dashboard's close button handles closing.
     restartButton.addEventListener('click', resetGame);
     
-    // Start the game
     resetGame();
 });
