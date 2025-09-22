@@ -2,11 +2,11 @@
 
 // --- State & Configuration ---
 const games = [
-    { name: "Snake", folder: "snake", desc: "The classic arcade game. Use arrow keys to grow your snake." },
-    { name: "2048", folder: "2048", desc: "Slide and combine tiles to reach the 2048 tile." },
-    { name: "Minesweeper", folder: "minesweeper", desc: "Clear the board without detonating any hidden mines." },
-    { name: "Memory", folder: "memory", desc: "Flip cards and test your memory by matching pairs." },
-    { name: "Reaction", folder: "reaction", desc: "Test your reflexes. Click when the screen turns green!" },
+    { name: "Snake", folder: "snake", desc: "The classic arcade game. Use arrow keys to grow your snake.", image: "assets/images/snake.png" },
+    { name: "2048", folder: "2048", desc: "Slide and combine tiles to reach the 2048 tile.", image: "assets/images/2048.png" },
+    { name: "Minesweeper", folder: "minesweeper", desc: "Clear the board without detonating any hidden mines.", image: "assets/images/minesweeper.png" },
+    { name: "Memory", folder: "memory", desc: "Flip cards and test your memory by matching pairs.", image: "assets/images/memory.png" },
+    { name: "Reaction", folder: "reaction", desc: "Test your reflexes. Click when the screen turns green!", image: "assets/images/reaction.png" },
 ];
 
 // --- UI Elements ---
@@ -15,6 +15,9 @@ const modalOverlay = document.getElementById('modal-overlay');
 const modalTitle = document.getElementById('modal-title');
 const modalBody = document.getElementById('modal-body');
 const closeModalButton = document.getElementById('close-modal-btn');
+const playAllBtn = document.getElementById('play-all-btn'); // New: Play All button
+const leaderboardsBtn = document.getElementById('leaderboards-btn'); // New: Leaderboards button
+
 
 // --- Global Functions (accessible by game iframes) ---
 window.closeGameModal = closeModal;
@@ -65,10 +68,8 @@ async function showLeaderboard(gameName) {
         const { success, leaderboard, unit, message } = await getLeaderboard(gameName);
         if (success) {
             if (leaderboard.length > 0) {
-                // ADJUSTED: Removed the "Date" column for a cleaner best-score leaderboard
                 let tableHTML = '<div class="table-container"><table><thead><tr><th>Rank</th><th>Player</th><th>Best Score</th></tr></thead><tbody>';
                 leaderboard.forEach((entry, index) => {
-                    // Note: 'best_score' is the alias from our new SQL query
                     tableHTML += `<tr><td>${index + 1}</td><td>${entry.username}</td><td>${entry.best_score}${unit || ''}</td></tr>`;
                 });
                 tableHTML += '</tbody></table></div>';
@@ -94,7 +95,7 @@ async function handleLogin(event) {
     try {
         const data = await loginUser(username, password);
         if (data.success) {
-            window.location.href = 'index.html'; // CORRECTED: Relative path
+            window.location.href = 'index.html';
         }
     } catch (error) {
         showFormMessage(error.message, false);
@@ -112,7 +113,8 @@ async function handleRegister(event) {
         if (data.success) {
             showFormMessage(data.message, true);
             setTimeout(() => {
-                window.location.href = 'login.html'; // CORRECTED: Relative path
+                // FIX: Corrected path for register.html redirect
+                window.location.href = 'login.html';
             }, 2000);
         }
     } catch (error) {
@@ -123,7 +125,7 @@ async function handleRegister(event) {
 async function handleLogout() {
     try {
         await logoutUser();
-        window.location.href = 'login.html'; // CORRECTED: Relative path
+        window.location.href = 'login.html';
     } catch (error) {
         alert('Logout failed. Please try again.');
     }
@@ -160,27 +162,50 @@ function initDashboard() {
     const gameGrid = document.getElementById('game-grid');
     if (!gameGrid) return;
     gameGrid.innerHTML = games.map(game => `
-        <div class="game-card">
-            <div class="game-card-image">${game.name}</div>
+        <div class="game-card" data-folder="${game.folder}" data-name="${game.name}">
+            <div class="game-card-image">
+                <img src="${game.image}" alt="${game.name} Icon">
+            </div>
             <div class="game-card-content">
                 <h3>${game.name}</h3>
                 <p>${game.desc}</p>
                 <div class="game-card-actions">
-                    <button class="btn btn-primary play-btn" data-folder="${game.folder}" data-name="${game.name}">Play</button>
-                    <button class="btn btn-secondary leaderboard-btn" data-name="${game.name}">Leaderboard</button>
+                    <button class="btn btn-primary play-btn">Play</button>
+                    <button class="btn btn-secondary leaderboard-btn">Leaderboard</button>
                 </div>
             </div>
         </div>`).join('');
     
+    // Use event delegation on the grid for better performance
     gameGrid.addEventListener('click', (event) => {
-        const target = event.target.closest('button');
-        if (!target) return;
-        if (target.classList.contains('play-btn')) {
-            launchGame(target.dataset.folder, target.dataset.name);
-        } else if (target.classList.contains('leaderboard-btn')) {
-            showLeaderboard(target.dataset.name);
+        const gameCard = event.target.closest('.game-card');
+        const targetBtn = event.target.closest('button');
+
+        if (!gameCard || !targetBtn) return; // Clicked outside a card or button
+
+        const gameFolder = gameCard.dataset.folder;
+        const gameName = gameCard.dataset.name;
+
+        if (targetBtn.classList.contains('play-btn')) {
+            launchGame(gameFolder, gameName);
+        } else if (targetBtn.classList.contains('leaderboard-btn')) {
+            showLeaderboard(gameName);
         }
     });
+
+    // Add event listeners for the "Play All" and "Leaderboards" buttons
+    if (playAllBtn) {
+        playAllBtn.addEventListener('click', () => {
+            alert('Play All functionality is not yet implemented.');
+            // Implement logic to cycle through games or show a game selection menu
+        });
+    }
+    if (leaderboardsBtn) {
+        leaderboardsBtn.addEventListener('click', () => {
+            alert('Global Leaderboards functionality is not yet implemented.');
+            // Implement logic to show a combined leaderboard or a leaderboard selection
+        });
+    }
 }
 
 async function initProfilePage() {
@@ -197,7 +222,6 @@ async function initProfilePage() {
                 let tableHTML = '<table><thead><tr><th>Game</th><th>Best Score</th></tr></thead><tbody>';
                 high_scores.forEach(s => {
                     const unit = s.name === 'Reaction' ? ' ms' : '';
-                    const scoreLabel = s.name === 'Reaction' ? `(Best Time)` : `(High Score)`;
                     tableHTML += `<tr><td>${s.name}</td><td>${s.high_score}${unit}</td></tr>`;
                 });
                 tableHTML += '</tbody></table>';
