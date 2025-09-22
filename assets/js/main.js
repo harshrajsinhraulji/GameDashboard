@@ -1,7 +1,6 @@
 // assets/js/main.js
 
 // --- State & Configuration ---
-// CORRECTED: Added missing commas between object properties in the array
 const games = [
     { name: "Snake", folder: "snake", desc: "The classic arcade game. Use arrow keys to grow your snake." },
     { name: "2048", folder: "2048", desc: "Slide and combine tiles to reach the 2048 tile." },
@@ -9,7 +8,6 @@ const games = [
     { name: "Memory", folder: "memory", desc: "Flip cards and test your memory by matching pairs." },
     { name: "Reaction", folder: "reaction", desc: "Test your reflexes. Click when the screen turns green!" },
 ];
-
 
 // --- UI Elements ---
 const navLinksContainer = document.querySelector('.nav-links');
@@ -45,7 +43,7 @@ function closeModal() {
     if (modalOverlay) {
         modalOverlay.classList.add('hidden');
         modalTitle.textContent = '';
-        modalBody.innerHTML = ''; 
+        modalBody.innerHTML = ''; // Important: stops game from running in background
     }
 }
 
@@ -54,20 +52,24 @@ function launchGame(gameFolder, gameName) {
     modalTitle.textContent = gameName;
     modalBody.innerHTML = `<iframe src="games/${gameFolder}/index.html"></iframe>`;
     const iframe = modalBody.querySelector('iframe');
-    iframe.onload = () => iframe.contentWindow.focus();
+    // Auto-focus the iframe for keyboard controls
+    iframe.onload = () => iframe.contentWindow.focus(); 
     openModal();
 }
+
 async function showLeaderboard(gameName) {
-    modalTitle.textContent = `${gameName} - Top 10 Leaderboard`;
+    modalTitle.textContent = `${gameName} - All-Time Top Players`;
     modalBody.innerHTML = '<p>Loading...</p>';
     openModal();
     try {
         const { success, leaderboard, unit, message } = await getLeaderboard(gameName);
         if (success) {
             if (leaderboard.length > 0) {
-                let tableHTML = '<div class="table-container"><table><thead><tr><th>Rank</th><th>Player</th><th>Score</th><th>Date</th></tr></thead><tbody>';
+                // ADJUSTED: Removed the "Date" column for a cleaner best-score leaderboard
+                let tableHTML = '<div class="table-container"><table><thead><tr><th>Rank</th><th>Player</th><th>Best Score</th></tr></thead><tbody>';
                 leaderboard.forEach((entry, index) => {
-                    tableHTML += `<tr><td>${index + 1}</td><td>${entry.username}</td><td>${entry.score}${unit || ''}</td><td>${new Date(entry.played_at).toLocaleDateString()}</td></tr>`;
+                    // Note: 'best_score' is the alias from our new SQL query
+                    tableHTML += `<tr><td>${index + 1}</td><td>${entry.username}</td><td>${entry.best_score}${unit || ''}</td></tr>`;
                 });
                 tableHTML += '</tbody></table></div>';
                 modalBody.innerHTML = tableHTML;
@@ -82,6 +84,7 @@ async function showLeaderboard(gameName) {
     }
 }
 
+
 // --- Auth Event Handlers ---
 async function handleLogin(event) {
     event.preventDefault();
@@ -91,7 +94,7 @@ async function handleLogin(event) {
     try {
         const data = await loginUser(username, password);
         if (data.success) {
-            window.location.href = 'index.html';
+            window.location.href = 'index.html'; // CORRECTED: Relative path
         }
     } catch (error) {
         showFormMessage(error.message, false);
@@ -109,7 +112,7 @@ async function handleRegister(event) {
         if (data.success) {
             showFormMessage(data.message, true);
             setTimeout(() => {
-                window.location.href = 'login.html';
+                window.location.href = 'login.html'; // CORRECTED: Relative path
             }, 2000);
         }
     } catch (error) {
@@ -120,7 +123,7 @@ async function handleRegister(event) {
 async function handleLogout() {
     try {
         await logoutUser();
-        window.location.href = 'login.html';
+        window.location.href = 'login.html'; // CORRECTED: Relative path
     } catch (error) {
         alert('Logout failed. Please try again.');
     }
@@ -189,16 +192,19 @@ async function initProfilePage() {
             const highScoresTable = document.getElementById('high-scores-table');
             const historyTable = document.getElementById('history-table');
             
+            // Build High Scores Table
             if (high_scores.length > 0) {
                 let tableHTML = '<table><thead><tr><th>Game</th><th>Best Score</th></tr></thead><tbody>';
                 high_scores.forEach(s => {
                     const unit = s.name === 'Reaction' ? ' ms' : '';
+                    const scoreLabel = s.name === 'Reaction' ? `(Best Time)` : `(High Score)`;
                     tableHTML += `<tr><td>${s.name}</td><td>${s.high_score}${unit}</td></tr>`;
                 });
                 tableHTML += '</tbody></table>';
                 highScoresTable.innerHTML = tableHTML;
             } else { highScoresTable.innerHTML = '<p>Play some games to set a high score!</p>'; }
 
+            // Build History Table
             if (history.length > 0) {
                 let tableHTML = '<table><thead><tr><th>Game</th><th>Score</th><th>Date</th></tr></thead><tbody>';
                 history.forEach(h => {
@@ -230,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     checkSession().then(({ loggedIn, username }) => {
         updateNav(loggedIn, username);
+        // Page-specific initializers
         if (document.getElementById('game-grid')) {
             initDashboard();
         } else if (document.getElementById('profile-container')) {

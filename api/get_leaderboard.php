@@ -12,20 +12,22 @@ if (empty($game_name)) {
 }
 
 try {
+    // Determine the aggregate function and sort order based on the game
+    $aggregator = ($game_name === 'Reaction') ? 'MIN' : 'MAX';
     $sort_order = ($game_name === 'Reaction') ? 'ASC' : 'DESC';
 
-    // The SQL query now formats the date
+    // --- NEW SQL QUERY ---
+    // This query now finds the single best score for each user before ranking them.
     $sql = "
         SELECT 
-            u.username, 
-            s.score,
-            -- FIX: Format the timestamp into a standard ISO 8601 format
-            DATE_FORMAT(s.played_at, '%Y-%m-%dT%H:%i:%s') AS played_at
+            u.username,
+            {$aggregator}(s.score) AS best_score
         FROM scores s
         JOIN users u ON s.user_id = u.id
         JOIN games g ON s.game_id = g.id
         WHERE g.name = ?
-        ORDER BY s.score {$sort_order}
+        GROUP BY u.id, u.username
+        ORDER BY best_score {$sort_order}
         LIMIT 10
     ";
 
@@ -39,5 +41,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
+    // For debugging: error_log($e->getMessage());
     echo json_encode(['success' => false, 'message' => 'A database error occurred.']);
 }
