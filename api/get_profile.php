@@ -3,9 +3,8 @@
 
 require 'db.php';
 
-// Ensure user is logged in to view their profile
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401); // Unauthorized
+    http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'You must be logged in to view your profile.']);
     exit;
 }
@@ -13,8 +12,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 try {
-    // --- Step 1: Get user's best scores for each game ---
-    // This query cleverly uses MIN() for 'Reaction' and MAX() for all other games.
+    // Get user's best scores
     $high_scores_sql = "
         SELECT 
             g.name,
@@ -32,9 +30,13 @@ try {
     $stmt_high->execute([$user_id]);
     $high_scores = $stmt_high->fetchAll();
 
-    // --- Step 2: Get user's full game history, most recent first ---
+    // Get user's full game history
     $history_sql = "
-        SELECT g.name, s.score, s.played_at
+        SELECT 
+            g.name, 
+            s.score, 
+            -- FIX: Format the timestamp into a standard ISO 8601 format
+            DATE_FORMAT(s.played_at, '%Y-%m-%dT%H:%i:%s') AS played_at
         FROM scores s
         JOIN games g ON s.game_id = g.id
         WHERE s.user_id = ?
@@ -44,7 +46,6 @@ try {
     $stmt_history->execute([$user_id]);
     $history = $stmt_history->fetchAll();
 
-    // Combine all data into a single response object
     $profile_data = [
         'username' => $_SESSION['username'],
         'high_scores' => $high_scores,
@@ -55,6 +56,5 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    // For debugging: error_log($e->getMessage());
     echo json_encode(['success' => false, 'message' => 'A database error occurred.']);
 }

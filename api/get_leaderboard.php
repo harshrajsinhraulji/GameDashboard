@@ -12,13 +12,15 @@ if (empty($game_name)) {
 }
 
 try {
-    // --- FIX: Determine the sort order based on the game ---
-    // For Reaction, lower scores (times) are better (ASC). For all others, higher is better (DESC).
     $sort_order = ($game_name === 'Reaction') ? 'ASC' : 'DESC';
 
-    // The SQL query uses the dynamic sort order
+    // The SQL query now formats the date
     $sql = "
-        SELECT u.username, s.score
+        SELECT 
+            u.username, 
+            s.score,
+            -- FIX: Format the timestamp into a standard ISO 8601 format
+            DATE_FORMAT(s.played_at, '%Y-%m-%dT%H:%i:%s') AS played_at
         FROM scores s
         JOIN users u ON s.user_id = u.id
         JOIN games g ON s.game_id = g.id
@@ -31,7 +33,6 @@ try {
     $stmt->execute([$game_name]);
     $leaderboard = $stmt->fetchAll();
     
-    // Also send back the unit for the score (e.g., 'ms' for Reaction)
     $unit = ($game_name === 'Reaction') ? 'ms' : '';
 
     echo json_encode(['success' => true, 'leaderboard' => $leaderboard, 'unit' => $unit]);
