@@ -137,6 +137,16 @@ GET /get_leaderboard.php: Fetches the top 10 unique player scores for a given ga
 
 GET /get_profile.php: Fetches the high scores and full game history for the logged-in user.
 
+
 ## 📄 License
 
 This project is open-source and available for anyone to use or modify.
+
+
+
+## ✨ Images
+<img width="1851" height="914" alt="Screenshot 2025-09-23 014447" src="https://github.com/user-attachments/assets/9c839981-22f3-497a-813b-49d10677f9c1" />
+
+<img width="1839" height="919" alt="Screenshot 2025-09-23 014623" src="https://github.com/user-attachments/assets/f7c1043c-1b0a-4776-810b-fe8ea17f8c68" />
+
+
