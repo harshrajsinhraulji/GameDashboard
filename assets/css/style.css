@@ -48,7 +48,6 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 .logo {
     font-size: 1.8rem; font-weight: 700;
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-    background-clip: text;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .nav-links a, .nav-links button {
@@ -105,9 +104,11 @@ main { padding: 2rem 5%; }
     z-index: 2000; opacity: 1; transition: opacity 0.3s ease, visibility 0.3s;
     visibility: visible;
 }
+/* CORRECTED: The hidden class handles hiding the modal */
 .modal-overlay.hidden {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
 }
 .modal-content {
     background-color: var(--surface-color);
@@ -178,5 +179,3 @@ tbody tr:hover { background-color: var(--surface-light); }
 }
 #form-message.success { background-color: var(--success-color); }
 #form-message.error { background-color: var(--error-color); }
-
-.hidden { display: none; }
