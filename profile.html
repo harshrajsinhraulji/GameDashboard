@@ -4,31 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Game Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <header>
         <nav>
-            <a href="/" class="logo">GameDash</a>
+            <a href="index.html" class="logo">GameDash</a>
             <div class="nav-links">
                 </div>
         </nav>
     </header>
 
-    <main id="profile-container">
-        <h1 id="profile-username">Loading...</h1>
-        
-        <div class="profile-section">
-            <h2>My High Scores</h2>
-            <div id="high-scores-table" class="table-container">
-                </div>
-        </div>
-
-        <div class="profile-section">
-            <h2>Full Game History</h2>
-            <div id="history-table" class="table-container">
-                </div>
+    <main>
+        <div id="profile-container" class="profile-container">
+            <h1 id="profile-username" class="main-title">Loading Profile...</h1>
+            
+            <div class="profile-section">
+                <h2>My Best Scores</h2>
+                <div id="high-scores-table" class="table-container">
+                    </div>
+            </div>
+    
+            <div class="profile-section">
+                <h2>Full Game History</h2>
+                <div id="history-table" class="table-container">
+                    </div>
+            </div>
         </div>
     </main>
 

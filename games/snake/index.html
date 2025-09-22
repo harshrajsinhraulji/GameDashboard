@@ -5,23 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
     <link rel="stylesheet" href="snake.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="game-container">
-        <div class="score-display">Score: <span id="score">0</span></div>
+        <div class="game-header">
+            <div class="score-display">Score: <span id="score">0</span></div>
+            <button id="back-btn" class="game-btn">Back to Dash</button>
+        </div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
         
         <div id="gameOverScreen" class="overlay hidden">
             <h2>Game Over</h2>
             <p>Final Score: <span id="finalScore">0</span></p>
-            <button id="restartButton">Play Again</button>
+            <button id="restartButton" class="game-btn">Play Again</button>
         </div>
 
         <div id="startScreen" class="overlay">
             <h2>Snake</h2>
             <p>Use arrow keys to move the snake and eat the food.</p>
-            <button id="startButton">Start Game</button>
+            <button id="startButton" class="game-btn">Start Game</button>
         </div>
     </div>
     <script src="snake.js"></script>

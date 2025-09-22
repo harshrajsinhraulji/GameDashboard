@@ -48,6 +48,7 @@ nav { display: flex; justify-content: space-between; align-items: center; }
 .logo {
     font-size: 1.8rem; font-weight: 700;
     background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    background-clip: text;
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
 .nav-links a, .nav-links button {
