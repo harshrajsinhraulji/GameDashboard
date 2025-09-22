@@ -1,32 +1,53 @@
+/* games/2048/2048.css */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #faf8ef;
     color: #776e65;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100%;
     margin: 0;
+    -webkit-font-smoothing: antialiased;
 }
-.container { text-align: center; }
+
+.container {
+    text-align: center;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 400px;
+    width: 420px;
     margin-bottom: 20px;
 }
-h1 { font-size: 4em; }
+
+.header h1 {
+    font-size: 4em;
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
 .score-container {
     background-color: #bbada0;
-    padding: 10px 20px;
+    padding: 8px 20px;
     border-radius: 5px;
-    font-size: 1.5em;
+    font-size: 1.2em;
+    font-weight: 600;
     color: white;
+    min-width: 100px;
 }
+
 #game-board {
-    width: 400px;
-    height: 400px;
+    width: 420px;
+    height: 420px;
     background-color: #bbada0;
     border-radius: 6px;
     display: grid;
@@ -36,20 +57,23 @@ h1 { font-size: 4em; }
     padding: 10px;
     position: relative;
 }
+
 .tile {
-    width: 87.5px;
-    height: 87.5px;
+    width: 92.5px;
+    height: 92.5px;
     border-radius: 3px;
     background-color: #ccc0b3;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2em;
+    font-size: 2.2em;
     font-weight: bold;
+    color: #776e65;
 }
+
 /* Tile Colors */
-[data-value="2"] { background-color: #eee4da; color: #776e65; }
-[data-value="4"] { background-color: #ede0c8; color: #776e65; }
+[data-value="2"] { background-color: #eee4da; }
+[data-value="4"] { background-color: #ede0c8; }
 [data-value="8"] { background-color: #f2b179; color: #f9f6f2; }
 [data-value="16"] { background-color: #f59563; color: #f9f6f2; }
 [data-value="32"] { background-color: #f67c5f; color: #f9f6f2; }
@@ -59,3 +83,29 @@ h1 { font-size: 4em; }
 [data-value="512"] { background-color: #edc850; color: #f9f6f2; }
 [data-value="1024"] { background-color: #edc53f; color: #f9f6f2; }
 [data-value="2048"] { background-color: #edc22e; color: #f9f6f2; }
+[data-value="4096"] { background-color: #3c3a32; color: #f9f6f2; }
+
+/* Overlay */
+.overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(238, 228, 218, 0.73);
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    color: #776e65;
+    opacity: 1;
+    transition: opacity 0.3s;
+}
+.overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.overlay h2 { font-size: 3em; }
+.overlay p { font-size: 1.5em; margin: 0.5em 0 1em; }
+.game-btn {
+    padding: 0.7rem 1.2rem; font-size: 0.9rem; font-weight: 600;
+    font-family: 'Poppins', sans-serif; cursor: pointer;
+    background: #8f7a66; color: white; border: none;
+    border-radius: 5px; transition: background-color 0.2s;
+}
+.game-btn:hover { background: #776e65; }

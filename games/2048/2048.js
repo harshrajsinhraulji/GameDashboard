@@ -1,13 +1,22 @@
+// games/2048/2048.js
 document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const scoreDisplay = document.getElementById('score');
+    const finalScoreDisplay = document.getElementById('final-score');
+    const gameOverOverlay = document.getElementById('game-over-overlay');
+    const restartBtn = document.getElementById('restart-btn');
+    const backBtn = document.getElementById('back-btn');
+    
     const gridSize = 4;
     let grid = [];
     let score = 0;
+    let isGameOver = false;
 
     function initGame() {
         grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
         score = 0;
+        isGameOver = false;
+        gameOverOverlay.classList.add('hidden');
         updateScore();
         addRandomTile();
         addRandomTile();
@@ -31,12 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function addRandomTile() {
-        let emptyTiles = [];
+        const emptyTiles = [];
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c < gridSize; c++) {
-                if (grid[r][c] === 0) {
-                    emptyTiles.push({ r, c });
-                }
+                if (grid[r][c] === 0) emptyTiles.push({ r, c });
             }
         }
         if (emptyTiles.length > 0) {
@@ -44,14 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
             grid[r][c] = Math.random() < 0.9 ? 2 : 4;
         }
     }
-
-    function slide(row) {
-        let arr = row.filter(val => val);
-        let missing = gridSize - arr.length;
-        let zeros = Array(missing).fill(0);
-        return arr.concat(zeros);
-    }
-
+    
+    // --- Core Game Logic Functions ---
+    function slide(row) { return row.filter(val => val).concat(Array(gridSize - row.filter(val => val).length).fill(0)); }
     function combine(row) {
         for (let i = 0; i < gridSize - 1; i++) {
             if (row[i] !== 0 && row[i] === row[i + 1]) {
@@ -62,91 +64,76 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return row;
     }
-
     function operate(row) {
         row = slide(row);
         row = combine(row);
         row = slide(row);
         return row;
     }
-    
-    function rotateGrid(grid) {
-        let newGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
+
+    // --- Movement Handlers ---
+    function moveLeft() { grid.forEach((row, i) => grid[i] = operate(row)); }
+    function moveRight() { grid.forEach((row, i) => grid[i] = operate(row.reverse()).reverse()); }
+    function transpose() {
+        const newGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
         for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
-                newGrid[c][gridSize - 1 - r] = grid[r][c];
-            }
+            for (let c = 0; c < gridSize; c++) { newGrid[c][r] = grid[r][c]; }
         }
-        return newGrid;
+        grid = newGrid;
     }
+    // FIX: Up and Down logic is now correct
+    function moveUp() { transpose(); moveLeft(); transpose(); }
+    function moveDown() { transpose(); moveRight(); transpose(); }
 
-    function move(direction) {
-        let moved = false;
-        let originalGrid = JSON.parse(JSON.stringify(grid));
+    function handleMove(direction) {
+        if (isGameOver) return;
+        const originalGrid = JSON.stringify(grid);
+        switch (direction) {
+            case 'ArrowUp': moveUp(); break;
+            case 'ArrowDown': moveDown(); break;
+            case 'ArrowLeft': moveLeft(); break;
+            case 'ArrowRight': moveRight(); break;
+        }
+        const newGrid = JSON.stringify(grid);
 
-        if (direction === 'ArrowUp' || direction === 'ArrowDown') {
-            grid = rotateGrid(grid);
+        if (originalGrid !== newGrid) {
+            addRandomTile();
+            drawBoard();
+            updateScore();
+            checkGameOver();
         }
-        if (direction === 'ArrowRight' || direction === 'ArrowDown') {
-            grid.forEach(row => row.reverse());
-        }
-
-        for (let r = 0; r < gridSize; r++) {
-            grid[r] = operate(grid[r]);
-        }
-        
-        if (direction === 'ArrowRight' || direction === 'ArrowDown') {
-            grid.forEach(row => row.reverse());
-        }
-        if (direction === 'ArrowUp' || direction === 'ArrowDown') {
-            grid = rotateGrid(grid);
-            grid = rotateGrid(grid);
-            grid = rotateGrid(grid);
-        }
-
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
-                if (originalGrid[r][c] !== grid[r][c]) {
-                    moved = true;
-                    break;
-                }
-            }
-        }
-        return moved;
-    }
-
-    function updateScore() {
-        scoreDisplay.textContent = score;
     }
     
-    function isGameOver() {
+    function updateScore() { scoreDisplay.textContent = score; }
+
+    function checkGameOver() {
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c < gridSize; c++) {
-                if (grid[r][c] === 0) return false; // Empty cell
-                if (r < gridSize - 1 && grid[r][c] === grid[r + 1][c]) return false; // Can merge down
-                if (c < gridSize - 1 && grid[r][c] === grid[r][c + 1]) return false; // Can merge right
+                if (grid[r][c] === 0) return; // Found an empty tile
+                if (c < gridSize - 1 && grid[r][c] === grid[r][c + 1]) return; // Found a horizontal match
+                if (r < gridSize - 1 && grid[r][c] === grid[r + 1][c]) return; // Found a vertical match
             }
         }
-        return true;
+        isGameOver = true;
+        finalScoreDisplay.textContent = score;
+        gameOverOverlay.classList.remove('hidden');
+        if (window.parent && typeof window.parent.handleGameOver === 'function') {
+            window.parent.handleGameOver('2048', score);
+        }
     }
     
-    document.addEventListener('keydown', (e) => {
-        const directions = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-        if (directions.includes(e.key)) {
-            e.preventDefault();
-            if (move(e.key)) {
-                addRandomTile();
-                drawBoard();
-                updateScore();
-                if (isGameOver()) {
-                    setTimeout(() => {
-                        alert(`Game Over! Final Score: ${score}`);
-                        if (window.parent && typeof window.parent.handleGameOver === 'function') {
-                            window.parent.handleGameOver('2048', score);
-                        }
-                    }, 500);
-                }
-            }
+    // --- Event Listeners ---
+    document.addEventListener('keydown', e => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault(); // Prevent page scrolling
+            handleMove(e.key);
+        }
+    });
+
+    restartBtn.addEventListener('click', initGame);
+    backBtn.addEventListener('click', () => {
+        if (window.parent && typeof window.parent.closeGameModal === 'function') {
+            window.parent.closeGameModal();
         }
     });
 

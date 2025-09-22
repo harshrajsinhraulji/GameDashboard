@@ -4,16 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2048</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="2048.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>2048</h1>
-            <div class="score-container">Score: <span id="score">0</span></div>
+            <div class="header-right">
+                <div class="score-container">Score: <span id="score">0</span></div>
+                <button id="back-btn" class="game-btn">Back</button>
+            </div>
         </div>
         <div id="game-board"></div>
+        <div id="game-over-overlay" class="overlay hidden">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button id="restart-btn" class="game-btn">Play Again</button>
+        </div>
     </div>
     <script src="2048.js"></script>
 </body>
