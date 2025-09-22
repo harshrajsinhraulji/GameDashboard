@@ -1,2 +1,0 @@
--- SQL schema for Game Dashboard
--- Add CREATE TABLE statements here
