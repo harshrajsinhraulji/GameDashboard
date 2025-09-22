@@ -4,16 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minesweeper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="minesweeper.css">
 </head>
 <body>
-    <h1>Minesweeper</h1>
-    <div class="header">
-        Mines Left: <span id="mines-left">10</span>
-        <button id="restart-btn">Restart</button>
+    <div class="container">
+        <h1>Minesweeper</h1>
+        <div class="header">
+            <div class="status-box">Mines Left: <span id="mines-left">10</span></div>
+            <button id="restart-btn" class="game-btn">Restart</button>
+            <button id="back-btn" class="game-btn">Back</button>
+        </div>
+        <div id="game-board"></div>
     </div>
-    <div id="game-board"></div>
     <script src="minesweeper.js"></script>
 </body>
 </html>

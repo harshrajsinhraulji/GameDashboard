@@ -1,7 +1,9 @@
+// games/minesweeper/minesweeper.js
 document.addEventListener('DOMContentLoaded', () => {
     const gameBoard = document.getElementById('game-board');
     const minesLeftDisplay = document.getElementById('mines-left');
     const restartBtn = document.getElementById('restart-btn');
+    const backBtn = document.getElementById('back-btn');
     
     const rows = 10;
     const cols = 10;
@@ -30,11 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tile.addEventListener('contextmenu', handleRightClick);
                 gameBoard.appendChild(tile);
                 board[r][c] = {
-                    element: tile,
-                    isMine: false,
-                    isRevealed: false,
-                    isFlagged: false,
-                    adjacentMines: 0
+                    element: tile, isMine: false, isRevealed: false,
+                    isFlagged: false, adjacentMines: 0
                 };
             }
         }
@@ -50,65 +49,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 placedMines++;
             }
         }
-
+        // Calculate adjacent mines
         for (let r = 0; r < rows; r++) {
             for (let c = 0; c < cols; c++) {
                 if (board[r][c].isMine) continue;
-                let count = 0;
                 for (let dr = -1; dr <= 1; dr++) {
                     for (let dc = -1; dc <= 1; dc++) {
                         const nr = r + dr;
                         const nc = c + dc;
                         if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc].isMine) {
-                            count++;
+                            board[r][c].adjacentMines++;
                         }
                     }
                 }
-                board[r][c].adjacentMines = count;
             }
         }
     }
 
     function handleTileClick(e) {
         if (gameOver) return;
-        const tile = e.target;
-        const r = parseInt(tile.dataset.row);
-        const c = parseInt(tile.dataset.col);
-        const cell = board[r][c];
-
-        if (cell.isFlagged || cell.isRevealed) return;
+        const tileData = board[e.target.dataset.row][e.target.dataset.col];
+        if (tileData.isFlagged || tileData.isRevealed) return;
 
         if (firstClick) {
-            placeMines(r, c);
+            placeMines(parseInt(e.target.dataset.row), parseInt(e.target.dataset.col));
             firstClick = false;
         }
 
-        if (cell.isMine) {
+        if (tileData.isMine) {
+            tileData.element.classList.add('mine-hit');
             endGame(false);
             return;
         }
-
-        revealTile(r, c);
+        revealTile(tileData.element.dataset.row, tileData.element.dataset.col);
         checkWin();
     }
     
     function handleRightClick(e) {
         e.preventDefault();
         if (gameOver) return;
-        const tile = e.target;
-        const r = parseInt(tile.dataset.row);
-        const c = parseInt(tile.dataset.col);
-        const cell = board[r][c];
+        const tileData = board[e.target.dataset.row][e.target.dataset.col];
+        if (tileData.isRevealed) return;
         
-        if (cell.isRevealed) return;
-        
-        cell.isFlagged = !cell.isFlagged;
-        cell.element.classList.toggle('flagged', cell.isFlagged);
-        flags += cell.isFlagged ? 1 : -1;
+        tileData.isFlagged = !tileData.isFlagged;
+        tileData.element.classList.toggle('flagged', tileData.isFlagged);
+        flags += tileData.isFlagged ? 1 : -1;
         minesLeftDisplay.textContent = mineCount - flags;
     }
 
     function revealTile(r, c) {
+        r = parseInt(r); c = parseInt(c);
         const cell = board[r][c];
         if (cell.isRevealed || cell.isFlagged) return;
         cell.isRevealed = true;
@@ -117,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cell.adjacentMines > 0) {
             cell.element.textContent = cell.adjacentMines;
             cell.element.dataset.mines = cell.adjacentMines;
-        } else {
+        } else { // Flood fill for empty cells
             for (let dr = -1; dr <= 1; dr++) {
                 for (let dc = -1; dc <= 1; dc++) {
                     const nr = r + dr;
@@ -148,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let c = 0; c < cols; c++) {
                 if (board[r][c].isMine) {
                     board[r][c].element.classList.add('mine');
+                    board[r][c].element.classList.remove('flagged');
                 }
             }
         }
@@ -155,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             let score = 0;
             if (isWin) {
-                alert('You Win!');
+                alert('Congratulations! You Win!');
                 score = 1000; // Example win score
             } else {
                 alert('Game Over! You hit a mine.');
@@ -168,5 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     restartBtn.addEventListener('click', createBoard);
+    backBtn.addEventListener('click', () => {
+        if (window.parent && typeof window.parent.closeGameModal === 'function') {
+            window.parent.closeGameModal();
+        }
+    });
+
     createBoard();
 });
