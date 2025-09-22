@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Minesweeper</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="game-header">
+    <h1>Minesweeper</h1>
+    <a href="../index.html" class="btn">Back to Dashboard</a>
+  </header>
+
+  <main class="game-container">
+    <div class="controls">
+      <label>Difficulty: </label>
+      <select id="difficulty">
+        <option value="9|9|10">Easy (9×9, 10 mines)</option>
+        <option value="16|16|40">Medium (16×16, 40 mines)</option>
+        <option value="20|20|80">Hard (20×20, 80 mines)</option>
+      </select>
+      <button id="newGameBtn">New Game</button>
+    </div>
+
+    <div id="status" class="status">Click a cell to start. Right-click to flag.</div>
+    <div id="timer">Time: 0s</div>
+    <div id="board" class="minesweeper-board"></div>
+    <div id="result" class="result"></div>
+  </main>
+
+  <script src="../js/shared/scoreSender.js"></script>
+  <script src="../js/games/minesweeper.js"></script>
+</body>
+</html>
