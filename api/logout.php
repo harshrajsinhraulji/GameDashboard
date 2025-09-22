@@ -1,16 +1,15 @@
 <?php
-// File: api/logout.php
-// Description: Logs the user out by destroying the session.
+// api/logout.php
 
-// We need to start the session to access and destroy it.
+// A session must be started before it can be destroyed
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Unset all session variables
-$_SESSION = array();
+// Unset all of the session variables
+$_SESSION = [];
 
-// If it's desired to kill the session, also delete the session cookie.
+// Delete the session cookie from the browser
 if (ini_get("session.use_cookies")) {
     $params = session_get_cookie_params();
     setcookie(session_name(), '', time() - 42000,
@@ -19,8 +18,9 @@ if (ini_get("session.use_cookies")) {
     );
 }
 
-// Finally, destroy the session.
+// Finally, destroy the session on the server
 session_destroy();
 
+// Set the header and send a success response
 header('Content-Type: application/json');
 echo json_encode(['success' => true, 'message' => 'You have been logged out.']);

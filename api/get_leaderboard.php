@@ -1,10 +1,9 @@
 <?php
-// File: api/get_leaderboard.php
-// Description: Fetches top 10 scores, with special sorting for the Reaction game.
+// api/get_leaderboard.php
 
 require 'db.php';
 
-$game_name = isset($_GET['game']) ? $_GET['game'] : '';
+$game_name = isset($_GET['game']) ? trim($_GET['game']) : '';
 
 if (empty($game_name)) {
     http_response_code(400);
@@ -13,13 +12,13 @@ if (empty($game_name)) {
 }
 
 try {
-    // Determine the sort order based on the game
-    // For Reaction, lower scores are better (ASC). For others, higher is better (DESC).
+    // --- FIX: Determine the sort order based on the game ---
+    // For Reaction, lower scores (times) are better (ASC). For all others, higher is better (DESC).
     $sort_order = ($game_name === 'Reaction') ? 'ASC' : 'DESC';
 
-    // SQL query to get top 10 scores with usernames
+    // The SQL query uses the dynamic sort order
     $sql = "
-        SELECT u.username, s.score, s.played_at
+        SELECT u.username, s.score
         FROM scores s
         JOIN users u ON s.user_id = u.id
         JOIN games g ON s.game_id = g.id
@@ -32,12 +31,12 @@ try {
     $stmt->execute([$game_name]);
     $leaderboard = $stmt->fetchAll();
     
-    // Add a suffix for the score unit
+    // Also send back the unit for the score (e.g., 'ms' for Reaction)
     $unit = ($game_name === 'Reaction') ? 'ms' : '';
 
     echo json_encode(['success' => true, 'leaderboard' => $leaderboard, 'unit' => $unit]);
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'A database error occurred.']);
 }

@@ -1,12 +1,11 @@
 <?php
-// File: api/get_profile.php
-// Description: Fetches high scores and full game history for the logged-in user.
+// api/get_profile.php
 
 require 'db.php';
 
-// Check if user is logged in
+// Ensure user is logged in to view their profile
 if (!isset($_SESSION['user_id'])) {
-    http_response_code(401);
+    http_response_code(401); // Unauthorized
     echo json_encode(['success' => false, 'message' => 'You must be logged in to view your profile.']);
     exit;
 }
@@ -14,9 +13,15 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 try {
-    // 1. Get user's high scores for each game
+    // --- Step 1: Get user's best scores for each game ---
+    // This query cleverly uses MIN() for 'Reaction' and MAX() for all other games.
     $high_scores_sql = "
-        SELECT g.name, MAX(s.score) AS high_score
+        SELECT 
+            g.name,
+            CASE 
+                WHEN g.name = 'Reaction' THEN MIN(s.score)
+                ELSE MAX(s.score)
+            END AS high_score
         FROM scores s
         JOIN games g ON s.game_id = g.id
         WHERE s.user_id = ?
@@ -27,7 +32,7 @@ try {
     $stmt_high->execute([$user_id]);
     $high_scores = $stmt_high->fetchAll();
 
-    // 2. Get user's full game history
+    // --- Step 2: Get user's full game history, most recent first ---
     $history_sql = "
         SELECT g.name, s.score, s.played_at
         FROM scores s
@@ -39,7 +44,7 @@ try {
     $stmt_history->execute([$user_id]);
     $history = $stmt_history->fetchAll();
 
-    // Combine into a single response
+    // Combine all data into a single response object
     $profile_data = [
         'username' => $_SESSION['username'],
         'high_scores' => $high_scores,
@@ -50,5 +55,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    // For debugging: error_log($e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'A database error occurred.']);
 }

@@ -1,17 +1,19 @@
 <?php
-// File: api/check_session.php
-// Description: Checks if a user is currently logged in and returns session data.
+// api/check_session.php
 
-require 'db.php'; // This starts the session via db.php
+// This starts the session and sets the JSON header
+require 'db.php';
 
+// Check if the session variables for a logged-in user exist
 if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
-    // User is logged in
+    // If they exist, the user is logged in
     echo json_encode([
+        'success' => true,
         'loggedIn' => true,
         'username' => $_SESSION['username'],
         'userId' => $_SESSION['user_id']
     ]);
 } else {
-    // User is not logged in
-    echo json_encode(['loggedIn' => false]);
+    // Otherwise, the user is a guest
+    echo json_encode(['success' => true, 'loggedIn' => false]);
 }
