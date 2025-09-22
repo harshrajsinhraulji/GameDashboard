@@ -1,11 +1,11 @@
-// File: assets/js/api.js
-// Description: A module for handling all API communication with the backend.
+// assets/js/api.js
 
-const API_BASE_URL = 'api'; // Relative path to your API folder
+// CORRECTED: Relative path to your API folder
+const API_BASE_URL = 'api';
 
 /**
  * A generic function to handle Fetch API requests.
- * @param {string} endpoint - The API endpoint to call (e.g., '/login.php').
+ * @param {string} endpoint - The API endpoint to call (e.g., 'login.php').
  * @param {object} options - The options object for the fetch call (method, headers, body).
  * @returns {Promise<object>} - The JSON response from the server.
  */
@@ -18,7 +18,13 @@ async function apiRequest(endpoint, options = {}) {
             throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
         }
 
-        return await response.json();
+        // Handle cases with no JSON body, e.g., a 204 No Content response
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+            return await response.json();
+        }
+        return {}; // Return empty object for non-json responses
+
     } catch (error) {
         console.error('API Request Error:', error);
         throw error;
