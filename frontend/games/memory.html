@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Memory Game</title>
+  <link rel="stylesheet" href="../css/styles.css" />
+</head>
+<body>
+  <header class="game-header">
+    <h1>Memory Game</h1>
+    <a href="../index.html" class="btn">Back to Dashboard</a>
+  </header>
+
+  <main class="game-container">
+    <div class="controls">
+      <button id="newGameBtn">New Game</button>
+    </div>
+    <div id="moves">Moves: 0</div>
+  <div id="board" class="memory-board"></div>
+    <div id="result" class="result"></div>
+  </main>
+
+  <script type="module" src="../js/shared/scoreSender.js"></script>
+  <script type="module" src="../js/games/memory.js"></script>
+  <style>
+    .memory-board {
+      display: grid;
+      grid-template-columns: repeat(4, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin: 18px 0;
+    }
+    .memory-card {
+      width: 60px;
+      height: 60px;
+      background: #2f2f44;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+      user-select: none;
+    }
+    .memory-card.flipped .back {
+      display: block;
+    }
+    .memory-card .front {
+      display: none;
+    }
+    .memory-card .back {
+      display: none;
+    }
+    .memory-card.flipped {
+      background: #3b82f6;
+    }
+    .memory-card.flipped .front {
+      display: none;
+    }
+    .memory-card.flipped .back {
+      display: block;
+    }
+  </style>
+</body>
+</html>

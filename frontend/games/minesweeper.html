@@ -25,11 +25,47 @@
 
     <div id="status" class="status">Click a cell to start. Right-click to flag.</div>
     <div id="timer">Time: 0s</div>
-    <div id="board" class="minesweeper-board"></div>
+  <div id="board" class="minesweeper-board"></div>
     <div id="result" class="result"></div>
   </main>
 
-  <script src="../js/shared/scoreSender.js"></script>
-  <script src="../js/games/minesweeper.js"></script>
+  <script type="module" src="../js/shared/scoreSender.js"></script>
+  <script type="module" src="../js/games/minesweeper.js"></script>
+  <style>
+    .minesweeper-board {
+      display: grid;
+      gap: 2px;
+      margin: 18px 0;
+    }
+    .cell {
+      width: 32px;
+      height: 32px;
+      font-size: 1.1rem;
+      background: #2f2f44;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      user-select: none;
+    }
+    .cell.revealed {
+      background: #3b82f6;
+      color: #fff;
+      cursor: default;
+    }
+    .cell.flagged {
+      background: #facc15;
+      color: #23233a;
+    }
+    .cell.mine {
+      background: #ef4444;
+      color: #fff;
+    }
+  </style>
 </body>
 </html>
