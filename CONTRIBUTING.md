@@ -81,4 +81,4 @@ To get the project running locally for development:
 -   All database interactions **must** use prepared statements with PDO or MySQLi to prevent SQL injection vulnerabilities.
 -   Ensure API responses are in a consistent JSON format.
 
-Thank you again for your interest in making the Game Dashboard even better!!
+Thank you again for your interest in making the Game Dashboard even better!
